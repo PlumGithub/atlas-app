@@ -23,7 +23,8 @@ function getValues(substrate: SubstrateProfile | null): number[] {
 }
 
 export default function SubstrateRadar({ substrate, size = 240 }: Props) {
-  const cx = size / 2, cy = size / 2, R = size * 0.375
+  const cx = size / 2, cy = size / 2, R = size * 0.35
+  const outerR = size * 0.44
   const values = getValues(substrate)
   const angleStep = (Math.PI * 2) / 6
 
@@ -36,6 +37,9 @@ export default function SubstrateRadar({ substrate, size = 240 }: Props) {
   const dataPoints = values.map((v, i) => getPoint(i, (v / 100) * R))
   const dataPath = dataPoints.map((p, i) => `${i === 0 ? 'M' : 'L'}${p.x},${p.y}`).join(' ') + 'Z'
 
+  // Outer ring dashes
+  const outerCircumference = 2 * Math.PI * outerR
+
   return (
     <motion.svg
       width={size} height={size}
@@ -44,33 +48,62 @@ export default function SubstrateRadar({ substrate, size = 240 }: Props) {
       animate={{ scale: 1, opacity: 1 }}
       transition={{ duration: 0.6, ease: 'easeOut' }}
     >
+      {/* Rotating outer ring */}
+      <circle
+        cx={cx} cy={cy} r={outerR}
+        fill="none"
+        stroke="#c0a882"
+        strokeWidth="0.5"
+        strokeDasharray={`${outerCircumference * 0.02} ${outerCircumference * 0.03}`}
+        opacity={0.2}
+        style={{ animation: 'substrate-rotate 60s linear infinite', transformOrigin: `${cx}px ${cy}px` }}
+      />
+
       {/* Rings */}
       {rings.map((r, ri) => {
         const pts = Array.from({ length: 6 }, (_, i) => getPoint(i, R * r))
         const path = pts.map((p, i) => `${i === 0 ? 'M' : 'L'}${p.x},${p.y}`).join(' ') + 'Z'
-        return <path key={ri} d={path} fill="none" stroke="#3a3a3a" strokeWidth="0.5" opacity={0.4} />
+        return <path key={ri} d={path} fill="none" stroke="#c0a882" strokeWidth="0.5" opacity={0.12 + ri * 0.06} />
       })}
 
       {/* Axes */}
       {AXES.map((_, i) => {
         const p = getPoint(i, R)
-        return <line key={i} x1={cx} y1={cy} x2={p.x} y2={p.y} stroke="#3a3a3a" strokeWidth="0.5" opacity={0.3} />
+        return <line key={i} x1={cx} y1={cy} x2={p.x} y2={p.y} stroke="#c0a882" strokeWidth="0.3" opacity={0.15} />
       })}
 
-      {/* Data polygon */}
-      <path d={dataPath} fill="rgba(192,168,130,0.2)" stroke="#c0a882" strokeWidth="1.5" />
+      {/* Data polygon — ghost amber fill */}
+      <motion.path
+        d={dataPath}
+        fill="rgba(192,168,130,0.08)"
+        stroke="#c0a882"
+        strokeWidth="1"
+        initial={{ pathLength: 0, opacity: 0 }}
+        animate={{ pathLength: 1, opacity: 1 }}
+        transition={{ duration: 1.2, delay: 0.3 }}
+      />
 
-      {/* Data points */}
+      {/* Data points — ghost amber dots */}
       {dataPoints.map((p, i) => (
-        <circle key={i} cx={p.x} cy={p.y} r="3" fill="#c0a882" />
+        <motion.circle
+          key={i}
+          cx={p.x} cy={p.y} r="2.5"
+          fill="#c0a882"
+          initial={{ scale: 0 }}
+          animate={{ scale: 1 }}
+          transition={{ delay: 0.5 + i * 0.1 }}
+        />
       ))}
+
+      {/* Center dot */}
+      <circle cx={cx} cy={cy} r="1.5" fill="#c0a882" opacity={0.3} />
 
       {/* Labels */}
       {AXES.map((label, i) => {
         const p = getPoint(i, R + 18)
         return (
           <text key={label} x={p.x} y={p.y} textAnchor="middle" dominantBaseline="middle"
-            fill="#666" fontSize="9" fontFamily="'JetBrains Mono', monospace">
+            fill="#555" fontSize="8" fontFamily="'JetBrains Mono', monospace" letterSpacing="0.05em">
             {label}
           </text>
         )

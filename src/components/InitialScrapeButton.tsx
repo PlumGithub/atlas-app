@@ -16,7 +16,7 @@ export default function InitialScrapeButton() {
       })
       const data = await res.json()
       if (data.success) {
-        setResult(`scraped ${data.scraped} posts \u2192 processed ${data.processed} signals \u2192 saved ${data.saved}`)
+        setResult(`scraped ${data.scraped} posts → processed ${data.processed} signals → saved ${data.saved}`)
         setTimeout(() => router.refresh(), 1500)
       } else {
         setResult(`error: ${data.error}`)
@@ -34,7 +34,7 @@ export default function InitialScrapeButton() {
         disabled={loading}
         className="text-[#c0a882] text-[12px] font-mono hover:underline disabled:opacity-50"
       >
-        {loading ? <LoadingDots /> : '[run initial scrape \u2192]'}
+        {loading ? <LoadingDots /> : '[run initial scrape →]'}
       </button>
       {result && <p className="text-[#666] text-[11px] font-mono mt-2">&gt; {result}</p>}
     </div>

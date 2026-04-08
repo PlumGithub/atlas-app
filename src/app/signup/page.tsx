@@ -40,7 +40,7 @@ export default function SignupPage() {
   return (
     <div className="min-h-screen bg-[#1a1a1a] flex items-center justify-center p-4">
       <div className="w-full max-w-md">
-        <TerminalWindow title="atlas \u2014 init">
+        <TerminalWindow title="atlas — init">
           <form onSubmit={handleSubmit} className="space-y-6">
             <p className="text-[#c0a882] text-[14px] mb-6">initialize new substrate.</p>
             {error && <p className="text-red-400 text-[12px] font-mono">&gt; error: {error}</p>}
@@ -61,9 +61,9 @@ export default function SignupPage() {
             </div>
             <button type="submit" disabled={loading}
               className="w-full bg-[#c0a882]/10 border border-[#c0a882]/30 hover:bg-[#c0a882]/20 text-[#c0a882] font-mono text-[12px] py-3 rounded transition-colors">
-              {loading ? <LoadingDots /> : 'create account \u21b5'}
+              {loading ? <LoadingDots /> : 'create account ↵'}
             </button>
-            <p className="text-[#444] text-[11px] font-mono">have an account? <Link href="/login" className="text-[#c0a882] hover:underline">auth \u2192</Link></p>
+            <p className="text-[#444] text-[11px] font-mono">have an account? <Link href="/login" className="text-[#c0a882] hover:underline">auth →</Link></p>
           </form>
         </TerminalWindow>
       </div>

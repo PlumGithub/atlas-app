@@ -15,31 +15,115 @@
 }
 
 body {
-  background: #1a1a1a;
+  background: #0a0a0a;
   color: #d4d4d4;
   font-family: 'Space Grotesk', sans-serif;
 }
 
-/* Custom scrollbar */
+/* ═══════ GHOST POP GRAIN OVERLAY ═══════ */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  pointer-events: none;
+  opacity: 0.035;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-repeat: repeat;
+  background-size: 256px;
+}
+
+/* ═══════ SCANLINES ═══════ */
+body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: 9998;
+  pointer-events: none;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 2px,
+    rgba(0, 0, 0, 0.08) 2px,
+    rgba(0, 0, 0, 0.08) 4px
+  );
+}
+
+/* ═══════ GHOST POP ANIMATIONS ═══════ */
+@keyframes pulse-glow {
+  0%, 100% { text-shadow: 0 0 4px rgba(255, 45, 120, 0.3); }
+  50% { text-shadow: 0 0 12px rgba(255, 45, 120, 0.6), 0 0 20px rgba(255, 45, 120, 0.2); }
+}
+
+@keyframes ghost-flicker {
+  0%, 100% { opacity: 1; }
+  92% { opacity: 1; }
+  93% { opacity: 0.7; }
+  94% { opacity: 1; }
+  96% { opacity: 0.85; }
+  97% { opacity: 1; }
+}
+
+@keyframes vhs-drift {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(0.5px); }
+  50% { transform: translateX(-0.3px); }
+  75% { transform: translateX(0.2px); }
+}
+
+@keyframes substrate-rotate {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+@keyframes ghost-resolve {
+  0% { opacity: 0.3; filter: blur(1px); }
+  100% { opacity: 1; filter: blur(0); }
+}
+
+/* ═══════ CUSTOM SCROLLBAR ═══════ */
 ::-webkit-scrollbar {
-  width: 6px;
+  width: 4px;
 }
 
 ::-webkit-scrollbar-track {
-  background: #1a1a1a;
+  background: #0a0a0a;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #3a3a3a;
-  border-radius: 3px;
+  background: #2a2a2a;
+  border-radius: 2px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #555;
+  background: #444;
 }
 
-/* Selection */
+/* ═══════ SELECTION ═══════ */
 ::selection {
   background: rgba(192, 168, 130, 0.3);
   color: #fff;
+}
+
+/* ═══════ GHOST POP UTILITY CLASSES ═══════ */
+.ghost-flicker {
+  animation: ghost-flicker 8s ease-in-out infinite;
+}
+
+.vhs-drift {
+  animation: vhs-drift 12s ease-in-out infinite;
+}
+
+.ghost-text {
+  text-shadow: 0 0 8px rgba(192, 168, 130, 0.15);
+}
+
+.worn-border {
+  border-image: repeating-linear-gradient(
+    90deg,
+    #2a2a2a 0px,
+    #2a2a2a 4px,
+    transparent 4px,
+    transparent 6px
+  ) 1;
 }

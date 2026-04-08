@@ -7,6 +7,8 @@ export type SubstrateProfile = {
   anti_signals: string[]
   density_preference: 'surface' | 'mid' | 'deep'
   last_synthesized: string
+  signature?: string
+  risk_profile?: 'safe' | 'adventurous' | 'mixed'
 }
 
 export type AtlasUser = {

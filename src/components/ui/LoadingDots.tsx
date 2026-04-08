@@ -1,24 +1,24 @@
 'use client'
+import { useEffect, useState } from 'react'
+
+const GLYPHS = ['/', '-', '\\', '|', '.', '*', '+', '~', '^', '#']
 
 export default function LoadingDots() {
+  const [frame, setFrame] = useState(0)
+
+  useEffect(() => {
+    const iv = setInterval(() => setFrame(f => f + 1), 120)
+    return () => clearInterval(iv)
+  }, [])
+
+  const chars = [0, 1, 2, 3].map(i => {
+    const idx = (frame + i * 3) % GLYPHS.length
+    return GLYPHS[idx]
+  })
+
   return (
-    <span className="inline-flex gap-1">
-      {[0, 1, 2].map(i => (
-        <span
-          key={i}
-          className="w-1.5 h-1.5 rounded-full bg-[#c0a882]"
-          style={{
-            animation: 'dotPulse 1.2s ease-in-out infinite',
-            animationDelay: `${i * 0.4}s`,
-          }}
-        />
-      ))}
-      <style jsx>{`
-        @keyframes dotPulse {
-          0%, 100% { opacity: 0.2; transform: scale(0.8); }
-          50% { opacity: 1; transform: scale(1); }
-        }
-      `}</style>
+    <span className="inline-block font-mono text-[#c0a882] text-[11px] tracking-widest">
+      {chars.join('')}
     </span>
   )
 }

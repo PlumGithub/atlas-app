@@ -7,11 +7,17 @@ import { Menu, X, Lock } from 'lucide-react'
 const NAV_ITEMS = [
   { label: '[~/] digest', href: '/app' },
   { label: '[~/] substrate', href: '/app/substrate' },
+  { label: '[~/] saved', href: '/app/saved' },
   { label: '[~/] connect', href: '/app/connect', locked: false },
   { label: '[~/] settings', href: '/app/settings' },
 ]
 
-export default function Sidebar() {
+interface Props {
+  userEmail?: string
+  userTier?: string
+}
+
+export default function Sidebar({ userEmail = 'anonymous', userTier = 'free' }: Props) {
   const pathname = usePathname()
   const [open, setOpen] = useState(false)
 
@@ -42,8 +48,8 @@ export default function Sidebar() {
         })}
       </nav>
       <div className="mt-auto pt-8">
-        <div className="text-[#333] text-[10px] font-mono">user@atlas.nyc</div>
-        <div className="text-[#c0a882] text-[10px] font-mono mt-1 tracking-wider">FREE</div>
+        <div className="text-[#333] text-[10px] font-mono truncate">{userEmail}</div>
+        <div className="text-[#c0a882] text-[10px] font-mono mt-1 tracking-wider uppercase">{userTier}</div>
       </div>
     </>
   )

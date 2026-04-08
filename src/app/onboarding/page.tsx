@@ -80,7 +80,7 @@ export default function OnboardingPage() {
   return (
     <div className="min-h-screen bg-[#1a1a1a] flex items-center justify-center p-4">
       <div className="w-full max-w-lg">
-        <TerminalWindow title="atlas \u2014 onboarding">
+        <TerminalWindow title="atlas — onboarding">
           <div className="relative">
             <div className="absolute top-0 right-0 text-[#444] text-[11px] font-mono">[{step}/4]</div>
 
@@ -94,7 +94,7 @@ export default function OnboardingPage() {
                 </div>
                 <button onClick={() => setStep(2)} disabled={interests.length === 0}
                   className="mt-6 text-[#c0a882] text-[12px] font-mono hover:underline disabled:opacity-30 disabled:no-underline">
-                  [continue \u2192]
+                  [continue →]
                 </button>
               </div>
             )}
@@ -112,14 +112,14 @@ export default function OnboardingPage() {
                         <>
                           <span className="text-[#444] text-[11px] font-mono mr-3">not connected</span>
                           <button onClick={() => setConnected(prev => ({ ...prev, [p]: true }))}
-                            className="text-[#c0a882] text-[11px] font-mono hover:underline">[connect \u2192]</button>
+                            className="text-[#c0a882] text-[11px] font-mono hover:underline">[connect →]</button>
                         </>
                       )}
                     </div>
                   ))}
                 </div>
                 <div className="flex gap-4 mt-6">
-                  <button onClick={() => setStep(3)} className="text-[#c0a882] text-[12px] font-mono hover:underline">[continue \u2192]</button>
+                  <button onClick={() => setStep(3)} className="text-[#c0a882] text-[12px] font-mono hover:underline">[continue →]</button>
                   <button onClick={() => setStep(3)} className="text-[#333] text-[11px] font-mono hover:text-[#555]">skip for now</button>
                 </div>
               </div>
@@ -136,7 +136,7 @@ export default function OnboardingPage() {
                 </div>
                 <button onClick={() => setStep(4)} disabled={neighborhoods.length === 0}
                   className="mt-6 text-[#c0a882] text-[12px] font-mono hover:underline disabled:opacity-30">
-                  [continue \u2192]
+                  [continue →]
                 </button>
               </div>
             )}
@@ -154,7 +154,7 @@ export default function OnboardingPage() {
                 {showWelcome && <p className="text-[#d4d4d4] text-[16px] mt-6">welcome to atlas.</p>}
                 {showEnter && (
                   <button onClick={() => router.push('/app')}
-                    className="text-[#c0a882] text-[12px] font-mono hover:underline mt-4 block">[enter \u2192]</button>
+                    className="text-[#c0a882] text-[12px] font-mono hover:underline mt-4 block">[enter →]</button>
                 )}
               </div>
             )}

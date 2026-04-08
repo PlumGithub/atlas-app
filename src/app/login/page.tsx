@@ -30,7 +30,7 @@ export default function LoginPage() {
   return (
     <div className="min-h-screen bg-[#1a1a1a] flex items-center justify-center p-4">
       <div className="w-full max-w-md">
-        <TerminalWindow title="atlas \u2014 auth">
+        <TerminalWindow title="atlas — auth">
           <form onSubmit={handleSubmit} className="space-y-6">
             <p className="text-[#c0a882] text-[14px] mb-6">authenticate.</p>
 
@@ -67,12 +67,12 @@ export default function LoginPage() {
               disabled={loading}
               className="w-full bg-[#c0a882]/10 border border-[#c0a882]/30 hover:bg-[#c0a882]/20 text-[#c0a882] font-mono text-[12px] py-3 rounded transition-colors"
             >
-              {loading ? <LoadingDots /> : 'sign in \u21b5'}
+              {loading ? <LoadingDots /> : 'sign in ↵'}
             </button>
 
             <div className="text-[#444] text-[11px] font-mono space-y-1 mt-4">
-              <p>no account? <Link href="/signup" className="text-[#c0a882] hover:underline">init --new \u2192</Link></p>
-              <p>forgot? <span className="text-[#555]">reset --password \u2192</span></p>
+              <p>no account? <Link href="/signup" className="text-[#c0a882] hover:underline">init --new →</Link></p>
+              <p>forgot? <span className="text-[#555]">reset --password →</span></p>
             </div>
           </form>
         </TerminalWindow>
