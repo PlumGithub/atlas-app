@@ -19,23 +19,44 @@ const MEDIUM_COLORS: Record<string, string> = {
   object: '#888',
 }
 
-function ScoreBar({ score }: { score: number }) {
+function ScoreBadge({ score }: { score: number }) {
   const color = score >= 90 ? '#ffb000' : score >= 70 ? '#ffc933' : '#666'
+  const glow = score >= 90
   return (
-    <div className="flex items-center gap-2">
-      <div className="w-16 h-1 bg-[#222] rounded-full overflow-hidden">
+    <div className="flex items-center gap-2.5 flex-shrink-0">
+      <div className="w-20 h-[3px] bg-[#1a1a1a] rounded-full overflow-hidden">
         <div
-          className="h-full rounded-full transition-all duration-500"
-          style={{ width: `${score}%`, backgroundColor: color }}
+          className="h-full rounded-full transition-all duration-700 ease-out"
+          style={{
+            width: `${score}%`,
+            backgroundColor: color,
+            boxShadow: glow ? `0 0 8px ${color}` : 'none',
+          }}
         />
       </div>
       <span
-        className={`text-[11px] font-mono font-semibold tabular-nums ${
-          score >= 90 ? 'text-[#ffb000] animate-[pulse-glow_3s_ease-in-out_infinite]' : 'text-[#888]'
+        className={`text-[11px] font-mono font-bold tabular-nums tracking-wider ${
+          glow ? 'text-[#ffb000]' : 'text-[#888]'
         }`}
+        style={{ textShadow: glow ? '0 0 10px rgba(255, 176, 0, 0.5)' : 'none' }}
       >
         {score}%
       </span>
+    </div>
+  )
+}
+
+function ObscurityBar({ value }: { value: number }) {
+  return (
+    <div className="flex items-center gap-2">
+      <span className="text-[9px] tracking-[0.15em] uppercase text-[#444] font-bold">Obscurity</span>
+      <div className="w-16 h-[2px] bg-[#1a1a1a] rounded-full overflow-hidden">
+        <div
+          className="h-full bg-[#ffb000]/50 rounded-full"
+          style={{ width: `${value}%` }}
+        />
+      </div>
+      <span className="text-[9px] text-[#555] font-mono tabular-nums">{value}</span>
     </div>
   )
 }
@@ -44,86 +65,90 @@ export default function SignalCard({ signal, matchScore, matchReason, onSave, sa
   const mediumColor = MEDIUM_COLORS[signal.medium] || '#888'
 
   return (
-    <div
-      className="border border-[#222] rounded-lg bg-[#1a1a1a] p-6 hover:border-[#ffb000]/20 transition-all duration-300 cursor-pointer group hover:shadow-amber-sm"
-      style={{
-        borderLeft: `3px solid ${mediumColor}`,
-      }}
+    <article
+      className="group relative border border-[#222] rounded-lg bg-[#141414] p-6 hover:border-[#ffb000]/50 transition-all duration-300 cursor-pointer hover:shadow-[0_0_0_1px_rgba(255,176,0,0.15),0_0_30px_rgba(255,176,0,0.08)] hover:-translate-y-[1px]"
     >
+      {/* Medium accent line */}
+      <div
+        className="absolute left-0 top-6 bottom-6 w-[2px] rounded-full opacity-60 group-hover:opacity-100 transition-opacity"
+        style={{ backgroundColor: mediumColor }}
+      />
+
       {/* Header row */}
-      <div className="flex justify-between items-start gap-4">
+      <div className="flex justify-between items-start gap-6 pl-3">
         <div className="flex-1 min-w-0">
-          <h3 className="text-white font-semibold text-[15px] leading-tight group-hover:text-[#ffb000] transition-colors">
-            {signal.title}
-          </h3>
-          <div className="flex items-center gap-2 mt-1.5 text-[11px] text-[#666]">
-            <span className="uppercase tracking-wider font-semibold" style={{ color: mediumColor }}>
+          <div className="flex items-center gap-2 mb-2">
+            <span
+              className="text-[9px] font-bold tracking-[0.2em] uppercase px-2 py-0.5 rounded"
+              style={{
+                color: mediumColor,
+                backgroundColor: `${mediumColor}15`,
+              }}
+            >
               {signal.medium}
             </span>
             {signal.location && (
               <>
-                <span className="text-[#333]">/</span>
-                <span>{signal.location}</span>
+                <span className="text-[#333] text-[9px]">●</span>
+                <span className="text-[10px] text-[#666] tracking-wide">{signal.location}</span>
               </>
             )}
-            <span className="text-[#333]">/</span>
-            <span>{signal.source}</span>
           </div>
+          <h3 className="text-white font-bold text-[17px] leading-[1.25] tracking-[0.01em] group-hover:text-[#ffb000] transition-colors duration-200">
+            {signal.title}
+          </h3>
         </div>
 
-        <div className="flex items-center gap-3 flex-shrink-0">
+        <div className="flex flex-col items-end gap-2 flex-shrink-0">
+          {matchScore !== undefined && <ScoreBadge score={matchScore} />}
           {onSave && (
             <button
-              onClick={(e) => { e.stopPropagation(); onSave(signal.id) }}
-              className={`text-[12px] font-mono transition-all duration-200 ${
-                saved
-                  ? 'text-[#ffb000]'
-                  : 'text-[#444] hover:text-[#888]'
+              onClick={e => {
+                e.stopPropagation()
+                onSave(signal.id)
+              }}
+              className={`text-[10px] font-mono tracking-[0.15em] uppercase font-bold transition-all duration-200 ${
+                saved ? 'text-[#ffb000]' : 'text-[#444] hover:text-[#888]'
               }`}
             >
-              {saved ? '[saved]' : '[save]'}
+              {saved ? '◆ Saved' : '◇ Save'}
             </button>
           )}
-          {matchScore !== undefined && <ScoreBar score={matchScore} />}
         </div>
       </div>
 
       {/* Description */}
-      <p className="text-[#999] text-[13px] mt-4 leading-relaxed">
+      <p className="text-[#aaaaaa] text-[13px] mt-4 leading-[1.7] pl-3 max-w-[58ch]">
         {signal.description}
       </p>
 
       {/* Match reason */}
       {matchReason && (
-        <p className="text-[#555] text-[11px] mt-2 italic">
-          {'-> '}{matchReason}
-        </p>
+        <div className="mt-3 pl-3 flex items-center gap-2">
+          <span className="text-[#ffb000]/60 text-[11px]">→</span>
+          <p className="text-[#777] text-[11px] italic tracking-wide">{matchReason}</p>
+        </div>
       )}
 
-      {/* Footer: tags + obscurity */}
-      <div className="flex justify-between items-center mt-5 pt-4 border-t border-[#1e1e1e]">
-        <div className="flex gap-2 flex-wrap">
+      {/* Footer: tags + obscurity + source */}
+      <div className="flex flex-wrap justify-between items-center mt-5 pt-4 pl-3 border-t border-[#1e1e1e] gap-3">
+        <div className="flex gap-1.5 flex-wrap">
           {signal.tags.slice(0, 4).map(tag => (
             <span
               key={tag}
-              className="text-[#555] text-[10px] font-mono bg-[#222] px-2 py-0.5 rounded group-hover:text-[#888] group-hover:bg-[#2a2a2a] transition-colors"
+              className="text-[#666] text-[10px] font-mono bg-[#1a1a1a] border border-[#222] px-2 py-0.5 rounded group-hover:text-[#aaa] group-hover:border-[#333] transition-all"
             >
-              {tag}
+              #{tag}
             </span>
           ))}
         </div>
-        <div className="flex items-center gap-1.5">
-          <div className="w-10 h-1 bg-[#222] rounded-full overflow-hidden">
-            <div
-              className="h-full bg-[#ffb000]/40 rounded-full"
-              style={{ width: `${signal.obscurity_score}%` }}
-            />
-          </div>
-          <span className="text-[10px] text-[#555] font-mono tabular-nums">
-            {signal.obscurity_score}
+        <div className="flex items-center gap-4">
+          <ObscurityBar value={signal.obscurity_score} />
+          <span className="text-[9px] tracking-[0.15em] uppercase text-[#333] font-bold">
+            {signal.source}
           </span>
         </div>
       </div>
-    </div>
+    </article>
   )
 }
