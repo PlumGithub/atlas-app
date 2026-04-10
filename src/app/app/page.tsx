@@ -1,11 +1,13 @@
 import TerminalWindow from '@/components/ui/TerminalWindow'
-import AsciiDivider from '@/components/ui/AsciiDivider'
 import SubstrateRadar from '@/components/ui/SubstrateRadar'
 import InitialScrapeButton from '@/components/InitialScrapeButton'
 import DigestClient from '@/components/DigestClient'
+import Button from '@/components/ui/Button'
 import { createServiceClient } from '@/lib/supabase/service'
 import { scoreSignal } from '@/lib/digest'
 import type { Signal, SubstrateProfile } from '@/types'
+
+export const dynamic = 'force-dynamic'
 
 export default async function DashboardPage() {
   const supabase = createServiceClient()
@@ -27,8 +29,6 @@ export default async function DashboardPage() {
     }
   } catch {}
 
-  // Try to get the first user's substrate for scoring
-  // In production this would use the authenticated user's session
   try {
     const { data: users } = await supabase
       .from('users')
@@ -41,7 +41,6 @@ export default async function DashboardPage() {
     }
   } catch {}
 
-  // Score and sort signals
   const scored = signals.map(signal => {
     const { score, reason } = substrate
       ? scoreSignal(signal, substrate)
@@ -53,83 +52,100 @@ export default async function DashboardPage() {
     .slice(0, 20)
 
   return (
-    <div className="flex gap-8">
+    <div className="flex gap-10">
       <div className="flex-1 max-w-3xl">
-        <div className="font-mono text-[11px] text-[#444] mb-6 flex justify-between">
-          <span>atlas -- signal digest -- {new Date().toLocaleDateString()} -- nyc</span>
-          {isLive && <span className="text-[#27ae60]">* live</span>}
-          {!isLive && <span className="text-[#666]">o demo -- no signals yet</span>}
+        {/* Header */}
+        <div className="mb-8">
+          <h1 className="text-[24px] font-bold text-white tracking-wide">Signal Digest</h1>
+          <div className="flex items-center gap-4 mt-2 text-[12px] font-mono">
+            <span className="text-[#555]">{new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' })}</span>
+            <span className="text-[#333]">/</span>
+            <span className="text-[#555]">NYC</span>
+            {isLive ? (
+              <span className="flex items-center gap-1.5 text-[#4ade80]">
+                <span className="w-1.5 h-1.5 rounded-full bg-[#4ade80] animate-pulse" />
+                LIVE
+              </span>
+            ) : (
+              <span className="text-[#666]">NO SIGNALS</span>
+            )}
+          </div>
         </div>
 
-        <AsciiDivider label="signal digest" />
-
+        {/* Empty states */}
         {!isLive && (
-          <TerminalWindow title="atlas -- initialize" className="mb-4">
-            <div className="space-y-2 text-[#666] font-mono text-[12px]">
-              <p className="text-[#c0a882]">&gt; no signals found. run scraper to populate your digest.</p>
+          <TerminalWindow title="initialize" className="mb-6" glow>
+            <div className="space-y-3">
+              <p className="text-[#ffb000]">No signals found. Run the scraper to populate your digest.</p>
               <InitialScrapeButton />
             </div>
           </TerminalWindow>
         )}
 
         {isLive && !substrate && (
-          <TerminalWindow title="atlas -- substrate missing" className="mb-4">
-            <div className="space-y-1 text-[#666] font-mono text-[12px]">
-              <p className="text-[#c0a882]">&gt; signals are live but you have no substrate profile.</p>
-              <p className="text-[#555]">&gt; connect spotify / letterboxd / beli to build your taste profile.</p>
-              <a href="/app/substrate" className="text-[#c0a882] text-[11px] hover:underline block mt-2">{'[go to substrate ->]'}</a>
-            </div>
-          </TerminalWindow>
+          <div className="bg-[#ffb000]/5 border border-[#ffb000]/20 rounded-lg p-6 mb-6">
+            <p className="text-[#ffb000] text-[14px] font-semibold">Substrate missing</p>
+            <p className="text-[#888] text-[13px] mt-1">Signals are live but you have no taste profile. Connect your accounts to get personalized matches.</p>
+            <Button variant="secondary" size="sm" href="/app/substrate" className="mt-4">
+              Build Substrate
+            </Button>
+          </div>
         )}
 
+        {/* Signal list */}
         {scored.length > 0 ? (
-          <div className="mt-4">
-            <DigestClient scored={scored} userId={userId} />
-          </div>
+          <DigestClient scored={scored} userId={userId} />
         ) : isLive ? (
-          <TerminalWindow title="atlas -- empty digest" className="mt-4">
-            <p className="text-[#555] font-mono text-[12px]">&gt; no signals matched your substrate above threshold (35%). try re-synthesizing or connecting more accounts.</p>
+          <TerminalWindow title="empty digest" className="mt-4">
+            <p className="text-[#888]">No signals matched your substrate above threshold. Try re-synthesizing or connecting more accounts.</p>
           </TerminalWindow>
         ) : null}
 
-        <p className="font-mono text-[11px] text-[#333] mt-4 text-center">
-          showing {scored.length} signals -- {new Date().toLocaleDateString()}
+        <p className="text-[11px] text-[#333] mt-6 text-center tracking-wider">
+          {scored.length} SIGNALS / {new Date().toLocaleDateString()}
         </p>
       </div>
 
-      <div className="hidden xl:block w-[280px] flex-shrink-0">
-        <TerminalWindow title="your substrate" className="sticky top-8">
-          <div className="flex justify-center mb-4">
-            <SubstrateRadar substrate={substrate} size={200} />
+      {/* Substrate sidebar panel */}
+      <div className="hidden xl:block w-[300px] flex-shrink-0">
+        <div className="sticky top-10 space-y-6">
+          <div className="border border-[#222] rounded-lg bg-[#1a1a1a] p-6">
+            <h2 className="text-[12px] font-bold tracking-[0.15em] text-[#555] uppercase mb-4">Your Substrate</h2>
+            <div className="flex justify-center mb-4">
+              <SubstrateRadar substrate={substrate} size={220} />
+            </div>
+            {substrate ? (
+              <div className="space-y-4 text-[12px]">
+                <div>
+                  <span className="text-[#555] text-[10px] tracking-wider uppercase">Clusters</span>
+                  <div className="flex flex-wrap gap-1.5 mt-1.5">
+                    {substrate.aesthetic_clusters.map(c => (
+                      <span key={c} className="text-[#ffb000] bg-[#ffb000]/8 px-2.5 py-1 rounded text-[10px] font-medium">{c}</span>
+                    ))}
+                  </div>
+                </div>
+                <div>
+                  <span className="text-[#555] text-[10px] tracking-wider uppercase">Geography</span>
+                  <div className="flex flex-wrap gap-1.5 mt-1.5">
+                    {substrate.geographic_pulls.map(c => (
+                      <span key={c} className="text-[#5b8fa8] bg-[#5b8fa8]/10 px-2.5 py-1 rounded text-[10px] font-medium">{c}</span>
+                    ))}
+                  </div>
+                </div>
+                <div className="text-[#555] text-[11px] pt-2 border-t border-[#222]">
+                  Density: <span className="text-white">{substrate.density_preference}</span>
+                </div>
+              </div>
+            ) : (
+              <div className="text-center py-4">
+                <p className="text-[#555] text-[12px]">No substrate yet</p>
+                <Button variant="secondary" size="sm" href="/app/substrate" className="mt-3">
+                  Build Substrate
+                </Button>
+              </div>
+            )}
           </div>
-          {substrate ? (
-            <div className="space-y-3 text-[11px] font-mono">
-              <div>
-                <span className="text-[#666]">&gt; aesthetic_clusters</span>
-                <div className="flex flex-wrap gap-1 mt-1">
-                  {substrate.aesthetic_clusters.map(c => (
-                    <span key={c} className="text-[#c0a882] bg-[#c0a882]/10 px-2 py-0.5 rounded text-[10px]">[{c}]</span>
-                  ))}
-                </div>
-              </div>
-              <div>
-                <span className="text-[#666]">&gt; geographic_pulls</span>
-                <div className="flex flex-wrap gap-1 mt-1">
-                  {substrate.geographic_pulls.map(c => (
-                    <span key={c} className="text-[#7eb8c9] bg-[#7eb8c9]/10 px-2 py-0.5 rounded text-[10px]">[{c}]</span>
-                  ))}
-                </div>
-              </div>
-              <div className="text-[#444]">&gt; density: {substrate.density_preference}</div>
-              <div className="text-[#333] text-[10px]">&gt; last synthesized: {new Date(substrate.last_synthesized).toLocaleDateString()}</div>
-            </div>
-          ) : (
-            <div className="text-center py-4">
-              <p className="text-[#444] text-[11px] font-mono">no substrate yet</p>
-              <a href="/app/substrate" className="text-[#c0a882] text-[11px] font-mono mt-2 hover:underline block">{'[build substrate ->]'}</a>
-            </div>
-          )}
-        </TerminalWindow>
+        </div>
       </div>
     </div>
   )

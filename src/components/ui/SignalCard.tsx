@@ -11,77 +11,118 @@ interface Props {
 
 const MEDIUM_COLORS: Record<string, string> = {
   music: '#5b8fa8',
-  film: '#8b7355',
-  food: '#c0a882',
-  event: '#c0392b',
-  place: '#4a4a5a',
-  art: '#bf5fff',
-  object: '#666',
+  film: '#c9a84c',
+  food: '#e89b5a',
+  event: '#e05555',
+  place: '#7a7a9a',
+  art: '#b060e0',
+  object: '#888',
+}
+
+function ScoreBar({ score }: { score: number }) {
+  const color = score >= 90 ? '#ffb000' : score >= 70 ? '#ffc933' : '#666'
+  return (
+    <div className="flex items-center gap-2">
+      <div className="w-16 h-1 bg-[#222] rounded-full overflow-hidden">
+        <div
+          className="h-full rounded-full transition-all duration-500"
+          style={{ width: `${score}%`, backgroundColor: color }}
+        />
+      </div>
+      <span
+        className={`text-[11px] font-mono font-semibold tabular-nums ${
+          score >= 90 ? 'text-[#ffb000] animate-[pulse-glow_3s_ease-in-out_infinite]' : 'text-[#888]'
+        }`}
+      >
+        {score}%
+      </span>
+    </div>
+  )
 }
 
 export default function SignalCard({ signal, matchScore, matchReason, onSave, saved }: Props) {
-  const scoreColor = !matchScore ? 'text-[#666]'
-    : matchScore >= 90 ? 'text-[#ff2d78]'
-    : matchScore >= 70 ? 'text-[#c0a882]'
-    : 'text-[#666]'
-
-  const obscurityFilled = Math.round(signal.obscurity_score / 10)
-  const obscurityEmpty = 10 - obscurityFilled
-  const obscurityBar = '▓'.repeat(obscurityFilled) + '░'.repeat(obscurityEmpty)
-
-  const mediumColor = MEDIUM_COLORS[signal.medium] || '#666'
+  const mediumColor = MEDIUM_COLORS[signal.medium] || '#888'
 
   return (
     <div
-      className="border border-white/[0.04] rounded bg-gradient-to-br from-[#1a1a1a] to-[#161618] p-4 hover:bg-[#1e1e1e] transition-all duration-150 cursor-pointer group hover:translate-x-[2px]"
+      className="border border-[#222] rounded-lg bg-[#1a1a1a] p-6 hover:border-[#ffb000]/20 transition-all duration-300 cursor-pointer group hover:shadow-amber-sm"
       style={{
-        borderLeft: `2px solid ${mediumColor}`,
-        boxShadow: `inset 3px 0 12px ${mediumColor}15`,
+        borderLeft: `3px solid ${mediumColor}`,
       }}
     >
-      <div className="flex justify-between items-start">
-        <div className="flex items-start gap-2">
-          <span className="text-[#c0a882] text-[12px]">[▶]</span>
-          <span className="text-white font-medium text-[13px]">{signal.title}</span>
+      {/* Header row */}
+      <div className="flex justify-between items-start gap-4">
+        <div className="flex-1 min-w-0">
+          <h3 className="text-white font-semibold text-[15px] leading-tight group-hover:text-[#ffb000] transition-colors">
+            {signal.title}
+          </h3>
+          <div className="flex items-center gap-2 mt-1.5 text-[11px] text-[#666]">
+            <span className="uppercase tracking-wider font-semibold" style={{ color: mediumColor }}>
+              {signal.medium}
+            </span>
+            {signal.location && (
+              <>
+                <span className="text-[#333]">/</span>
+                <span>{signal.location}</span>
+              </>
+            )}
+            <span className="text-[#333]">/</span>
+            <span>{signal.source}</span>
+          </div>
         </div>
-        <div className="flex items-center gap-2">
+
+        <div className="flex items-center gap-3 flex-shrink-0">
           {onSave && (
             <button
               onClick={(e) => { e.stopPropagation(); onSave(signal.id) }}
-              className={`text-[11px] font-mono transition-colors ${saved ? 'text-[#c0a882]' : 'text-[#333] hover:text-[#666]'}`}
+              className={`text-[12px] font-mono transition-all duration-200 ${
+                saved
+                  ? 'text-[#ffb000]'
+                  : 'text-[#444] hover:text-[#888]'
+              }`}
             >
-              {saved ? '[✓]' : '[+]'}
+              {saved ? '[saved]' : '[save]'}
             </button>
           )}
-          {matchScore && (
-            <span
-              className={`${scoreColor} text-[11px] font-mono whitespace-nowrap ${matchScore >= 90 ? 'animate-[pulse-glow_3s_ease-in-out_infinite]' : ''}`}
-            >
-              {matchScore}% match
-            </span>
-          )}
+          {matchScore !== undefined && <ScoreBar score={matchScore} />}
         </div>
       </div>
 
-      <div className="text-[#666] text-[11px] font-mono mt-1 ml-6">
-        {signal.medium}{signal.location ? ` · ${signal.location}` : ''} · {signal.source}
-      </div>
+      {/* Description */}
+      <p className="text-[#999] text-[13px] mt-4 leading-relaxed">
+        {signal.description}
+      </p>
 
-      <p className="text-[#999] text-[12px] font-mono mt-3 ml-6 leading-relaxed">{signal.description}</p>
-
+      {/* Match reason */}
       {matchReason && (
-        <p className="text-[#555] text-[10px] font-mono mt-2 ml-6 italic">→ {matchReason}</p>
+        <p className="text-[#555] text-[11px] mt-2 italic">
+          {'-> '}{matchReason}
+        </p>
       )}
 
-      <div className="flex justify-between items-center mt-3 ml-6">
+      {/* Footer: tags + obscurity */}
+      <div className="flex justify-between items-center mt-5 pt-4 border-t border-[#1e1e1e]">
         <div className="flex gap-2 flex-wrap">
-          {signal.tags.map(tag => (
-            <span key={tag} className="text-[#4a4a5a] text-[11px] font-mono group-hover:text-[#666] transition-colors">[{tag}]</span>
+          {signal.tags.slice(0, 4).map(tag => (
+            <span
+              key={tag}
+              className="text-[#555] text-[10px] font-mono bg-[#222] px-2 py-0.5 rounded group-hover:text-[#888] group-hover:bg-[#2a2a2a] transition-colors"
+            >
+              {tag}
+            </span>
           ))}
         </div>
-        <span className="text-[10px] font-mono whitespace-nowrap" style={{ color: signal.obscurity_score > 70 ? '#c0a882' : '#3a3a3a' }}>
-          obscurity: {obscurityBar} {signal.obscurity_score}
-        </span>
+        <div className="flex items-center gap-1.5">
+          <div className="w-10 h-1 bg-[#222] rounded-full overflow-hidden">
+            <div
+              className="h-full bg-[#ffb000]/40 rounded-full"
+              style={{ width: `${signal.obscurity_score}%` }}
+            />
+          </div>
+          <span className="text-[10px] text-[#555] font-mono tabular-nums">
+            {signal.obscurity_score}
+          </span>
+        </div>
       </div>
     </div>
   )

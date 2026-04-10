@@ -1,7 +1,8 @@
-import TerminalWindow from '@/components/ui/TerminalWindow'
-import AsciiDivider from '@/components/ui/AsciiDivider'
 import HealthStatus from '@/components/HealthStatus'
+import Button from '@/components/ui/Button'
 import { createServiceClient } from '@/lib/supabase/service'
+
+export const dynamic = 'force-dynamic'
 
 export default async function SettingsPage() {
   let email = 'not set'
@@ -33,60 +34,71 @@ export default async function SettingsPage() {
 
   return (
     <div className="max-w-2xl">
-      <AsciiDivider label="settings" />
-      <TerminalWindow title="atlas -- account">
-        <div className="font-mono text-[12px] space-y-4">
-          <div className="flex justify-between border-b border-[#2a2a2a] pb-3">
-            <span className="text-[#666]">&gt; email</span>
-            <span className="text-[#d4d4d4]">{email}</span>
+      <div className="mb-10">
+        <h1 className="text-[24px] font-bold text-white tracking-wide">Settings</h1>
+        <p className="text-[#555] text-[13px] mt-2">Account configuration and system status.</p>
+      </div>
+
+      {/* Account */}
+      <section className="mb-10">
+        <h2 className="text-[11px] font-bold tracking-[0.15em] text-[#555] uppercase mb-4">Account</h2>
+        <div className="border border-[#222] rounded-lg bg-[#1a1a1a] divide-y divide-[#222]">
+          <div className="flex justify-between items-center px-6 py-4">
+            <span className="text-[#666] text-[12px]">Email</span>
+            <span className="text-white text-[13px]">{email}</span>
           </div>
-          <div className="flex justify-between border-b border-[#2a2a2a] pb-3">
-            <span className="text-[#666]">&gt; tier</span>
-            <div className="flex items-center gap-3">
-              <span className="text-[#c0a882] uppercase">{tier}</span>
-            </div>
+          <div className="flex justify-between items-center px-6 py-4">
+            <span className="text-[#666] text-[12px]">Tier</span>
+            <span className="text-[#ffb000] text-[12px] font-bold tracking-wider uppercase">{tier}</span>
           </div>
-          <div className="flex justify-between border-b border-[#2a2a2a] pb-3">
-            <span className="text-[#666]">&gt; substrate</span>
-            <span className="text-[#444]">last synthesized: {lastSynthesized}</span>
+          <div className="flex justify-between items-center px-6 py-4">
+            <span className="text-[#666] text-[12px]">Substrate</span>
+            <span className="text-[#555] text-[12px]">Last synthesized: {lastSynthesized}</span>
           </div>
         </div>
-      </TerminalWindow>
+      </section>
 
-      <AsciiDivider label="connected accounts" />
-      <TerminalWindow title="integrations">
-        <div className="font-mono text-[12px] space-y-3">
+      {/* Connections */}
+      <section className="mb-10">
+        <h2 className="text-[11px] font-bold tracking-[0.15em] text-[#555] uppercase mb-4">Connected Accounts</h2>
+        <div className="border border-[#222] rounded-lg bg-[#1a1a1a] divide-y divide-[#222]">
           {['spotify', 'letterboxd', 'beli'].map(platform => {
             const conn = connections.find(c => c.platform === platform)
             return (
-              <div key={platform} className="flex justify-between items-center py-2 border-b border-[#2a2a2a] last:border-0">
-                <span className="text-[#d4d4d4] uppercase">{platform}</span>
-                <div className="flex items-center gap-3">
-                  {conn ? (
-                    <span className="text-[#27ae60] text-[11px]">connected {new Date(conn.connected_at).toLocaleDateString()}</span>
-                  ) : (
-                    <>
-                      <span className="text-[#444] text-[11px]">not connected</span>
-                      <a href={`/app/substrate`} className="text-[#c0a882] text-[11px] hover:underline">{'[connect ->]'}</a>
-                    </>
-                  )}
-                </div>
+              <div key={platform} className="flex justify-between items-center px-6 py-4">
+                <span className="text-white text-[13px] capitalize">{platform}</span>
+                {conn ? (
+                  <span className="flex items-center gap-2 text-[#4ade80] text-[11px]">
+                    <span className="w-1.5 h-1.5 rounded-full bg-[#4ade80]" />
+                    Connected {new Date(conn.connected_at).toLocaleDateString()}
+                  </span>
+                ) : (
+                  <Button variant="tertiary" size="sm" href="/app/substrate">
+                    Connect
+                  </Button>
+                )}
               </div>
             )
           })}
         </div>
-      </TerminalWindow>
+      </section>
 
-      <AsciiDivider label="system health" />
-      <HealthStatus />
+      {/* System Health */}
+      <section className="mb-10">
+        <h2 className="text-[11px] font-bold tracking-[0.15em] text-[#555] uppercase mb-4">System Health</h2>
+        <HealthStatus />
+      </section>
 
-      <div className="mt-8 border border-red-900/30 rounded-[10px] p-5">
-        <p className="text-red-400/60 font-mono text-[12px] font-medium">danger zone</p>
-        <p className="text-[#444] font-mono text-[11px] mt-2">this action cannot be undone. your substrate and all associated data will be permanently deleted.</p>
-        <button className="text-red-400/60 font-mono text-[11px] mt-3 border border-red-900/30 px-4 py-2 rounded hover:bg-red-900/10 transition-colors">
-          {'[delete substrate ->]'}
-        </button>
-      </div>
+      {/* Danger zone */}
+      <section>
+        <h2 className="text-[11px] font-bold tracking-[0.15em] text-[#ef4444]/50 uppercase mb-4">Danger Zone</h2>
+        <div className="border border-[#ef4444]/20 rounded-lg bg-[#1a1a1a] p-6">
+          <p className="text-[#888] text-[12px]">Permanently delete your substrate and all associated data. This cannot be undone.</p>
+          <Button variant="danger" size="sm" className="mt-4">
+            Delete Substrate
+          </Button>
+        </div>
+      </section>
     </div>
   )
 }

@@ -1,6 +1,7 @@
 'use client'
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
+import Button from '@/components/ui/Button'
 import LoadingDots from '@/components/ui/LoadingDots'
 
 interface Props {
@@ -16,7 +17,7 @@ export default function SubstrateActions({ userId, action }: Props) {
   const router = useRouter()
 
   const handleSynthesize = async () => {
-    if (!userId) { setResult('no user found'); return }
+    if (!userId) { setResult('No user found'); return }
     setLoading(true)
     try {
       const res = await fetch('/api/substrate/synthesize', {
@@ -26,10 +27,10 @@ export default function SubstrateActions({ userId, action }: Props) {
       })
       const data = await res.json()
       if (data.success) {
-        setResult('substrate synthesized')
+        setResult('Substrate synthesized')
         setTimeout(() => router.refresh(), 1000)
       } else {
-        setResult(data.error || 'failed')
+        setResult(data.error || 'Failed')
       }
     } catch (e) { setResult(String(e)) }
     setLoading(false)
@@ -46,10 +47,10 @@ export default function SubstrateActions({ userId, action }: Props) {
       })
       const data = await res.json()
       if (data.success) {
-        setResult(`found ${data.films} films`)
+        setResult(`Found ${data.films} films`)
         setTimeout(() => router.refresh(), 1000)
       } else {
-        setResult(data.error || 'not found')
+        setResult(data.error || 'Not found')
       }
     } catch (e) { setResult(String(e)) }
     setLoading(false)
@@ -66,10 +67,10 @@ export default function SubstrateActions({ userId, action }: Props) {
       })
       const data = await res.json()
       if (data.success) {
-        setResult('food taste analyzed')
+        setResult('Food taste analyzed')
         setTimeout(() => router.refresh(), 1000)
       } else {
-        setResult(data.error || 'failed')
+        setResult(data.error || 'Failed')
       }
     } catch (e) { setResult(String(e)) }
     setLoading(false)
@@ -77,22 +78,18 @@ export default function SubstrateActions({ userId, action }: Props) {
 
   if (action === 'resynthesize' || action === 'synthesize') {
     return (
-      <div className="mt-3">
-        <button
-          onClick={handleSynthesize}
-          disabled={loading}
-          className="text-[#c0a882] text-[11px] font-mono hover:underline disabled:opacity-50"
-        >
-          {loading ? <LoadingDots /> : action === 'resynthesize' ? '[re-synthesize substrate -->]' : '[synthesize substrate -->]'}
-        </button>
-        {result && <p className="text-[#666] text-[10px] font-mono mt-1">&gt; {result}</p>}
+      <div className="mt-4">
+        <Button onClick={handleSynthesize} variant="secondary" size="sm" loading={loading}>
+          {action === 'resynthesize' ? 'Re-synthesize' : 'Synthesize Substrate'}
+        </Button>
+        {result && <p className="text-[#555] text-[11px] mt-2">{result}</p>}
       </div>
     )
   }
 
   if (action === 'letterboxd') {
     return (
-      <div className="mt-2">
+      <div className="mt-3">
         {showInput ? (
           <div className="space-y-2">
             <input
@@ -100,42 +97,46 @@ export default function SubstrateActions({ userId, action }: Props) {
               value={input}
               onChange={e => setInput(e.target.value)}
               placeholder="letterboxd username"
-              className="w-full bg-[#0a0a0a] border border-[#2a2a2a] rounded px-2 py-1 text-[11px] font-mono text-[#d4d4d4] focus:border-[#c0a882] outline-none"
+              className="w-full bg-[#0a0a0a] border border-[#333] rounded-lg px-3 py-2 text-[12px] font-mono text-white focus:border-[#ffb000]/50 outline-none transition-colors"
               onKeyDown={e => e.key === 'Enter' && handleLetterboxd()}
             />
-            <button onClick={handleLetterboxd} disabled={loading} className="text-[#c0a882] text-[11px] font-mono hover:underline disabled:opacity-50">
-              {loading ? <LoadingDots /> : '[fetch -->]'}
-            </button>
+            <Button onClick={handleLetterboxd} variant="secondary" size="sm" loading={loading}>
+              Fetch
+            </Button>
           </div>
         ) : (
-          <button onClick={() => setShowInput(true)} className="text-[#c0a882] text-[11px] font-mono hover:underline">{'[connect letterboxd ->]'}</button>
+          <Button onClick={() => setShowInput(true)} variant="secondary" size="sm" className="w-full">
+            Connect
+          </Button>
         )}
-        {result && <p className="text-[#666] text-[10px] font-mono mt-1">&gt; {result}</p>}
+        {result && <p className="text-[#555] text-[11px] mt-2">{result}</p>}
       </div>
     )
   }
 
   if (action === 'beli') {
     return (
-      <div className="mt-2">
+      <div className="mt-3">
         {showInput ? (
           <div className="space-y-2">
             <input
               type="text"
               value={input}
               onChange={e => setInput(e.target.value)}
-              placeholder="your favorite NYC spots (comma separated)"
-              className="w-full bg-[#0a0a0a] border border-[#2a2a2a] rounded px-2 py-1 text-[11px] font-mono text-[#d4d4d4] focus:border-[#c0a882] outline-none"
+              placeholder="your favorite NYC spots"
+              className="w-full bg-[#0a0a0a] border border-[#333] rounded-lg px-3 py-2 text-[12px] font-mono text-white focus:border-[#ffb000]/50 outline-none transition-colors"
               onKeyDown={e => e.key === 'Enter' && handleBeli()}
             />
-            <button onClick={handleBeli} disabled={loading} className="text-[#c0a882] text-[11px] font-mono hover:underline disabled:opacity-50">
-              {loading ? <LoadingDots /> : '[analyze -->]'}
-            </button>
+            <Button onClick={handleBeli} variant="secondary" size="sm" loading={loading}>
+              Analyze
+            </Button>
           </div>
         ) : (
-          <button onClick={() => setShowInput(true)} className="text-[#c0a882] text-[11px] font-mono hover:underline">{'[connect beli ->]'}</button>
+          <Button onClick={() => setShowInput(true)} variant="secondary" size="sm" className="w-full">
+            Connect
+          </Button>
         )}
-        {result && <p className="text-[#666] text-[10px] font-mono mt-1">&gt; {result}</p>}
+        {result && <p className="text-[#555] text-[11px] mt-2">{result}</p>}
       </div>
     )
   }

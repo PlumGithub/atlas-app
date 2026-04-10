@@ -1,17 +1,16 @@
 'use client'
 import { useState } from 'react'
-import type { Signal } from '@/types'
 
 const MEDIUMS = ['all', 'music', 'film', 'food', 'event', 'place', 'art'] as const
 
 const MEDIUM_COLORS: Record<string, string> = {
-  all: '#c0a882',
+  all: '#ffb000',
   music: '#5b8fa8',
-  film: '#8b7355',
-  food: '#c0a882',
-  event: '#c0392b',
-  place: '#4a4a5a',
-  art: '#bf5fff',
+  film: '#c9a84c',
+  food: '#e89b5a',
+  event: '#e05555',
+  place: '#7a7a9a',
+  art: '#b060e0',
 }
 
 interface Props {
@@ -22,18 +21,19 @@ export default function MediumFilter({ onFilter }: Props) {
   const [active, setActive] = useState<string>('all')
 
   return (
-    <div className="flex gap-1 flex-wrap font-mono text-[10px]">
+    <div className="flex gap-1 flex-wrap">
       {MEDIUMS.map(m => (
         <button
           key={m}
           onClick={() => { setActive(m); onFilter(m === 'all' ? null : m) }}
-          className="px-2 py-1 rounded transition-all duration-150"
-          style={{
-            color: active === m ? MEDIUM_COLORS[m] : '#333',
-            borderBottom: active === m ? `1px solid ${MEDIUM_COLORS[m]}` : '1px solid transparent',
-          }}
+          className={`px-3 py-1.5 rounded-md text-[11px] font-mono font-medium tracking-wider uppercase transition-all duration-200 ${
+            active === m
+              ? 'bg-white/[0.08] text-white'
+              : 'text-[#555] hover:text-[#999] hover:bg-white/[0.03]'
+          }`}
+          style={active === m ? { color: MEDIUM_COLORS[m] } : undefined}
         >
-          [{m}]
+          {m}
         </button>
       ))}
     </div>

@@ -17,7 +17,7 @@ export default function LoadingDots() {
   })
 
   return (
-    <span className="inline-block font-mono text-[#c0a882] text-[11px] tracking-widest">
+    <span className="inline-block font-mono text-[#ffb000] text-[11px] tracking-widest">
       {chars.join('')}
     </span>
   )

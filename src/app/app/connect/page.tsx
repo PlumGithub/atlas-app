@@ -1,20 +1,19 @@
 import TerminalWindow from '@/components/ui/TerminalWindow'
-import AsciiDivider from '@/components/ui/AsciiDivider'
+import Button from '@/components/ui/Button'
 import { createServiceClient } from '@/lib/supabase/service'
 import type { SubstrateProfile } from '@/types'
+
+export const dynamic = 'force-dynamic'
 
 function computeSimilarity(a: SubstrateProfile, b: SubstrateProfile): number {
   let overlap = 0
   let total = 0
-
   const aTerms = [...a.aesthetic_clusters, ...a.geographic_pulls, ...a.discovery_vectors].map(s => s.toLowerCase())
   const bTerms = [...b.aesthetic_clusters, ...b.geographic_pulls, ...b.discovery_vectors].map(s => s.toLowerCase())
-
   for (const t of aTerms) {
     total++
     if (bTerms.some(bt => bt.includes(t) || t.includes(bt))) overlap++
   }
-
   if (total === 0) return 0
   return Math.min(99, Math.round((overlap / total) * 100))
 }
@@ -25,7 +24,6 @@ export default async function ConnectPage() {
   let matches: { id: string; similarity: number; shared: string[] }[] = []
 
   try {
-    // Get current user (first user for now)
     const { data: users } = await supabase
       .from('users')
       .select('id, substrate')
@@ -35,7 +33,6 @@ export default async function ConnectPage() {
       currentSubstrate = users[0].substrate as SubstrateProfile
       const currentId = users[0].id
 
-      // Get other users with substrates
       const { data: others } = await supabase
         .from('users')
         .select('id, substrate')
@@ -60,44 +57,50 @@ export default async function ConnectPage() {
 
   if (!currentSubstrate) {
     return (
-      <div className="max-w-md mx-auto mt-20">
-        <TerminalWindow title="atlas -- connect">
-          <div className="text-center py-8 font-mono">
-            <p className="text-[#666] text-[13px]">build your substrate first to find matches</p>
-            <a href="/app/substrate" className="text-[#c0a882] text-[12px] mt-4 hover:underline block">{'[go to substrate ->]'}</a>
-          </div>
-        </TerminalWindow>
+      <div className="max-w-md mx-auto mt-20 text-center">
+        <h2 className="text-[20px] font-bold text-white">Community Matching</h2>
+        <p className="text-[#555] text-[13px] mt-3">Build your substrate first to find people with similar taste.</p>
+        <Button variant="primary" size="md" href="/app/substrate" className="mt-6">
+          Build Substrate
+        </Button>
       </div>
     )
   }
 
   return (
     <div className="max-w-2xl">
-      <AsciiDivider label="community matching" />
-      <p className="font-mono text-[11px] text-[#444] mb-4">substrate overlap -- nyc</p>
+      <div className="mb-8">
+        <h1 className="text-[24px] font-bold text-white tracking-wide">Community</h1>
+        <p className="text-[#555] text-[13px] mt-2">People with similar substrate profiles in NYC.</p>
+      </div>
 
       {matches.length === 0 ? (
-        <TerminalWindow title="atlas -- no matches">
-          <div className="text-center py-8 font-mono">
-            <p className="text-[#666] text-[12px]">&gt; no substrate matches found yet.</p>
-            <p className="text-[#444] text-[11px] mt-2">&gt; more users need to build their profiles.</p>
-          </div>
-        </TerminalWindow>
+        <div className="border border-[#222] rounded-lg bg-[#1a1a1a] p-12 text-center">
+          <p className="text-[#555] text-[14px]">No matches found yet</p>
+          <p className="text-[#444] text-[12px] mt-2">More users need to build their profiles.</p>
+        </div>
       ) : (
         <div className="space-y-3">
           {matches.map(m => (
-            <TerminalWindow key={m.id} title={`match_0x${m.id}`}>
-              <div className="font-mono text-[12px] space-y-1">
-                <div className="flex justify-between">
-                  <span className="text-[#d4d4d4]">&gt; match_0x{m.id}</span>
-                  <span className="text-[#c0a882]">similarity: {m.similarity}%</span>
+            <div key={m.id} className="border border-[#222] rounded-lg bg-[#1a1a1a] p-5 hover:border-[#ffb000]/20 transition-all duration-300">
+              <div className="flex justify-between items-start">
+                <div>
+                  <span className="text-white font-semibold text-[13px]">0x{m.id}</span>
+                  {m.shared.length > 0 && (
+                    <p className="text-[#555] text-[11px] mt-1">Shared: {m.shared.join(', ')}</p>
+                  )}
                 </div>
-                {m.shared.length > 0 && (
-                  <p className="text-[#666]">&gt; shared: {m.shared.join(' . ')}</p>
-                )}
-                <button className="text-[#c0a882] text-[11px] mt-2 hover:underline">{'[signal ->]'}</button>
+                <div className="flex items-center gap-2">
+                  <div className="w-12 h-1 bg-[#222] rounded-full overflow-hidden">
+                    <div
+                      className="h-full rounded-full bg-[#ffb000]"
+                      style={{ width: `${m.similarity}%` }}
+                    />
+                  </div>
+                  <span className="text-[#ffb000] text-[12px] font-bold tabular-nums">{m.similarity}%</span>
+                </div>
               </div>
-            </TerminalWindow>
+            </div>
           ))}
         </div>
       )}

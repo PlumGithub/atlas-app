@@ -1,7 +1,7 @@
 'use client'
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import LoadingDots from '@/components/ui/LoadingDots'
+import Button from '@/components/ui/Button'
 
 export default function InitialScrapeButton() {
   const [loading, setLoading] = useState(false)
@@ -16,27 +16,23 @@ export default function InitialScrapeButton() {
       })
       const data = await res.json()
       if (data.success) {
-        setResult(`scraped ${data.scraped} posts → processed ${data.processed} signals → saved ${data.saved}`)
+        setResult(`Scraped ${data.scraped} posts / processed ${data.processed} / saved ${data.saved}`)
         setTimeout(() => router.refresh(), 1500)
       } else {
-        setResult(`error: ${data.error}`)
+        setResult(`Error: ${data.error}`)
       }
     } catch (e) {
-      setResult(`error: ${String(e)}`)
+      setResult(`Error: ${String(e)}`)
     }
     setLoading(false)
   }
 
   return (
     <div className="mt-4">
-      <button
-        onClick={handleScrape}
-        disabled={loading}
-        className="text-[#c0a882] text-[12px] font-mono hover:underline disabled:opacity-50"
-      >
-        {loading ? <LoadingDots /> : '[run initial scrape →]'}
-      </button>
-      {result && <p className="text-[#666] text-[11px] font-mono mt-2">&gt; {result}</p>}
+      <Button onClick={handleScrape} variant="primary" size="sm" loading={loading}>
+        Run Initial Scrape
+      </Button>
+      {result && <p className="text-[#888] text-[11px] mt-3">{result}</p>}
     </div>
   )
 }

@@ -36,8 +36,6 @@ export default function SubstrateRadar({ substrate, size = 240 }: Props) {
   const rings = [0.33, 0.66, 1.0]
   const dataPoints = values.map((v, i) => getPoint(i, (v / 100) * R))
   const dataPath = dataPoints.map((p, i) => `${i === 0 ? 'M' : 'L'}${p.x},${p.y}`).join(' ') + 'Z'
-
-  // Outer ring dashes
   const outerCircumference = 2 * Math.PI * outerR
 
   return (
@@ -51,9 +49,7 @@ export default function SubstrateRadar({ substrate, size = 240 }: Props) {
       {/* Rotating outer ring */}
       <circle
         cx={cx} cy={cy} r={outerR}
-        fill="none"
-        stroke="#c0a882"
-        strokeWidth="0.5"
+        fill="none" stroke="#ffb000" strokeWidth="0.5"
         strokeDasharray={`${outerCircumference * 0.02} ${outerCircumference * 0.03}`}
         opacity={0.2}
         style={{ animation: 'substrate-rotate 60s linear infinite', transformOrigin: `${cx}px ${cy}px` }}
@@ -63,47 +59,46 @@ export default function SubstrateRadar({ substrate, size = 240 }: Props) {
       {rings.map((r, ri) => {
         const pts = Array.from({ length: 6 }, (_, i) => getPoint(i, R * r))
         const path = pts.map((p, i) => `${i === 0 ? 'M' : 'L'}${p.x},${p.y}`).join(' ') + 'Z'
-        return <path key={ri} d={path} fill="none" stroke="#c0a882" strokeWidth="0.5" opacity={0.12 + ri * 0.06} />
+        return <path key={ri} d={path} fill="none" stroke="#ffb000" strokeWidth="0.5" opacity={0.08 + ri * 0.04} />
       })}
 
       {/* Axes */}
       {AXES.map((_, i) => {
         const p = getPoint(i, R)
-        return <line key={i} x1={cx} y1={cy} x2={p.x} y2={p.y} stroke="#c0a882" strokeWidth="0.3" opacity={0.15} />
+        return <line key={i} x1={cx} y1={cy} x2={p.x} y2={p.y} stroke="#ffb000" strokeWidth="0.3" opacity={0.12} />
       })}
 
-      {/* Data polygon — ghost amber fill */}
+      {/* Data polygon */}
       <motion.path
         d={dataPath}
-        fill="rgba(192,168,130,0.08)"
-        stroke="#c0a882"
-        strokeWidth="1"
+        fill="rgba(255,176,0,0.06)"
+        stroke="#ffb000"
+        strokeWidth="1.5"
         initial={{ pathLength: 0, opacity: 0 }}
         animate={{ pathLength: 1, opacity: 1 }}
         transition={{ duration: 1.2, delay: 0.3 }}
       />
 
-      {/* Data points — ghost amber dots */}
+      {/* Data points */}
       {dataPoints.map((p, i) => (
         <motion.circle
-          key={i}
-          cx={p.x} cy={p.y} r="2.5"
-          fill="#c0a882"
+          key={i} cx={p.x} cy={p.y} r="3"
+          fill="#ffb000"
           initial={{ scale: 0 }}
           animate={{ scale: 1 }}
           transition={{ delay: 0.5 + i * 0.1 }}
         />
       ))}
 
-      {/* Center dot */}
-      <circle cx={cx} cy={cy} r="1.5" fill="#c0a882" opacity={0.3} />
+      {/* Center */}
+      <circle cx={cx} cy={cy} r="1.5" fill="#ffb000" opacity={0.3} />
 
       {/* Labels */}
       {AXES.map((label, i) => {
-        const p = getPoint(i, R + 18)
+        const p = getPoint(i, R + 20)
         return (
           <text key={label} x={p.x} y={p.y} textAnchor="middle" dominantBaseline="middle"
-            fill="#555" fontSize="8" fontFamily="'JetBrains Mono', monospace" letterSpacing="0.05em">
+            fill="#666" fontSize="9" fontFamily="'IBM Plex Mono', monospace" letterSpacing="0.08em">
             {label}
           </text>
         )

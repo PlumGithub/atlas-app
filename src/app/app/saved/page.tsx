@@ -1,16 +1,15 @@
 import SignalCard from '@/components/ui/SignalCard'
-import TerminalWindow from '@/components/ui/TerminalWindow'
-import AsciiDivider from '@/components/ui/AsciiDivider'
+import Button from '@/components/ui/Button'
 import { createServiceClient } from '@/lib/supabase/service'
 import type { Signal } from '@/types'
+
+export const dynamic = 'force-dynamic'
 
 export default async function SavedPage() {
   let savedSignals: Signal[] = []
 
   try {
     const supabase = createServiceClient()
-
-    // Get first user
     const { data: users } = await supabase
       .from('users')
       .select('id')
@@ -36,25 +35,30 @@ export default async function SavedPage() {
 
   return (
     <div className="max-w-3xl">
-      <AsciiDivider label="saved signals" />
+      <div className="mb-8">
+        <h1 className="text-[24px] font-bold text-white tracking-wide">Saved Signals</h1>
+        <p className="text-[#555] text-[13px] mt-2">Your bookmarked discoveries.</p>
+      </div>
 
       {savedSignals.length === 0 ? (
-        <TerminalWindow title="atlas -- saved">
-          <div className="text-center py-8 font-mono">
-            <p className="text-[#666] text-[12px]">&gt; no saved signals yet</p>
-            <p className="text-[#444] text-[11px] mt-2">&gt; click [+] on any signal card to save it</p>
-            <a href="/app" className="text-[#c0a882] text-[11px] mt-4 hover:underline block">{'[go to digest ->]'}</a>
-          </div>
-        </TerminalWindow>
-      ) : (
-        <div className="space-y-3 mt-4">
-          {savedSignals.map(signal => (
-            <SignalCard key={signal.id} signal={signal} saved />
-          ))}
-          <p className="font-mono text-[11px] text-[#333] mt-4 text-center">
-            {savedSignals.length} saved signals
-          </p>
+        <div className="border border-[#222] rounded-lg bg-[#1a1a1a] p-12 text-center">
+          <p className="text-[#555] text-[14px]">No saved signals yet</p>
+          <p className="text-[#444] text-[12px] mt-2">Click [save] on any signal card to bookmark it.</p>
+          <Button variant="secondary" size="sm" href="/app" className="mt-6">
+            Go to Digest
+          </Button>
         </div>
+      ) : (
+        <>
+          <div className="space-y-4">
+            {savedSignals.map(signal => (
+              <SignalCard key={signal.id} signal={signal} saved />
+            ))}
+          </div>
+          <p className="text-[11px] text-[#333] mt-6 text-center tracking-wider">
+            {savedSignals.length} SAVED
+          </p>
+        </>
       )}
     </div>
   )

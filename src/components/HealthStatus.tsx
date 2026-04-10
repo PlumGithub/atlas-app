@@ -1,6 +1,5 @@
 'use client'
 import { useEffect, useState } from 'react'
-import TerminalWindow from '@/components/ui/TerminalWindow'
 
 type Health = {
   supabase: boolean
@@ -22,34 +21,55 @@ export default function HealthStatus() {
       .catch(() => setError(true))
   }, [])
 
+  const Status = ({ ok }: { ok: boolean }) => (
+    <span className={`flex items-center gap-1.5 text-[11px] ${ok ? 'text-[#4ade80]' : 'text-[#ef4444]'}`}>
+      <span className={`w-1.5 h-1.5 rounded-full ${ok ? 'bg-[#4ade80]' : 'bg-[#ef4444]'}`} />
+      {ok ? 'OK' : 'DOWN'}
+    </span>
+  )
+
   if (error) {
     return (
-      <TerminalWindow title="system health">
-        <p className="text-red-400/60 font-mono text-[12px]">&gt; could not fetch health status</p>
-      </TerminalWindow>
+      <div className="border border-[#222] rounded-lg bg-[#1a1a1a] p-6">
+        <p className="text-[#ef4444] text-[12px]">Could not fetch health status</p>
+      </div>
     )
   }
 
   if (!health) {
     return (
-      <TerminalWindow title="system health">
-        <p className="text-[#444] font-mono text-[12px]">&gt; checking...</p>
-      </TerminalWindow>
+      <div className="border border-[#222] rounded-lg bg-[#1a1a1a] p-6">
+        <p className="text-[#555] text-[12px]">Checking...</p>
+      </div>
     )
   }
 
-  const status = (ok: boolean) => ok ? <span className="text-[#27ae60]">OK</span> : <span className="text-red-400/60">DOWN</span>
-
   return (
-    <TerminalWindow title="system health">
-      <div className="font-mono text-[12px] space-y-2">
-        <div className="flex justify-between"><span className="text-[#666]">&gt; supabase</span>{status(health.supabase)}</div>
-        <div className="flex justify-between"><span className="text-[#666]">&gt; reddit</span>{status(health.reddit)}</div>
-        <div className="flex justify-between"><span className="text-[#666]">&gt; anthropic</span>{status(health.anthropic)}</div>
-        <div className="flex justify-between"><span className="text-[#666]">&gt; signals</span><span className="text-[#d4d4d4]">{health.signals_count}</span></div>
-        <div className="flex justify-between"><span className="text-[#666]">&gt; users</span><span className="text-[#d4d4d4]">{health.users_count}</span></div>
-        <div className="flex justify-between"><span className="text-[#666]">&gt; last scraped</span><span className="text-[#444]">{health.last_scraped ? new Date(health.last_scraped).toLocaleString() : 'never'}</span></div>
+    <div className="border border-[#222] rounded-lg bg-[#1a1a1a] divide-y divide-[#222]">
+      <div className="flex justify-between items-center px-6 py-3">
+        <span className="text-[#666] text-[12px]">Supabase</span>
+        <Status ok={health.supabase} />
       </div>
-    </TerminalWindow>
+      <div className="flex justify-between items-center px-6 py-3">
+        <span className="text-[#666] text-[12px]">Reddit</span>
+        <Status ok={health.reddit} />
+      </div>
+      <div className="flex justify-between items-center px-6 py-3">
+        <span className="text-[#666] text-[12px]">Anthropic</span>
+        <Status ok={health.anthropic} />
+      </div>
+      <div className="flex justify-between items-center px-6 py-3">
+        <span className="text-[#666] text-[12px]">Signals</span>
+        <span className="text-white text-[12px] font-medium tabular-nums">{health.signals_count}</span>
+      </div>
+      <div className="flex justify-between items-center px-6 py-3">
+        <span className="text-[#666] text-[12px]">Users</span>
+        <span className="text-white text-[12px] font-medium tabular-nums">{health.users_count}</span>
+      </div>
+      <div className="flex justify-between items-center px-6 py-3">
+        <span className="text-[#666] text-[12px]">Last Scraped</span>
+        <span className="text-[#555] text-[12px]">{health.last_scraped ? new Date(health.last_scraped).toLocaleString() : 'Never'}</span>
+      </div>
+    </div>
   )
 }

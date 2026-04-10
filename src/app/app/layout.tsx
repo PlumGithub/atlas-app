@@ -1,6 +1,8 @@
 import Sidebar from '@/components/layout/Sidebar'
 import { createServiceClient } from '@/lib/supabase/service'
 
+export const dynamic = 'force-dynamic'
+
 export default async function AppLayout({ children }: { children: React.ReactNode }) {
   let userEmail = 'anonymous'
   let userTier = 'free'
@@ -19,9 +21,9 @@ export default async function AppLayout({ children }: { children: React.ReactNod
   } catch {}
 
   return (
-    <div className="flex min-h-screen bg-[#1a1a1a]">
+    <div className="flex min-h-screen bg-[#0a0a0a]">
       <Sidebar userEmail={userEmail} userTier={userTier} />
-      <main className="lg:ml-[220px] flex-1 p-6 lg:p-8 overflow-y-auto pt-14 lg:pt-8">
+      <main className="lg:ml-[240px] flex-1 p-6 lg:p-10 overflow-y-auto pt-14 lg:pt-10">
         {children}
       </main>
     </div>

@@ -2,8 +2,7 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
-import TerminalWindow from '@/components/ui/TerminalWindow'
-import LoadingDots from '@/components/ui/LoadingDots'
+import Button from '@/components/ui/Button'
 import { createClient } from '@/lib/supabase/client'
 
 export default function LoginPage() {
@@ -28,54 +27,67 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#1a1a1a] flex items-center justify-center p-4">
-      <div className="w-full max-w-md">
-        <TerminalWindow title="atlas — auth">
-          <form onSubmit={handleSubmit} className="space-y-6">
-            <p className="text-[#c0a882] text-[14px] mb-6">authenticate.</p>
+    <div className="min-h-screen bg-[#0a0a0a] flex items-center justify-center p-6">
+      <div className="w-full max-w-sm">
+        {/* Header */}
+        <div className="text-center mb-10">
+          <Link href="/" className="text-[#ffb000] text-[24px] font-bold tracking-[0.25em]">ATLAS</Link>
+          <p className="text-[#555] text-[12px] mt-2 tracking-wider">authenticate</p>
+        </div>
 
-            {error && (
-              <p className="text-red-400 text-[12px] font-mono">&gt; error: {error}</p>
-            )}
-
-            <div>
-              <label className="text-[#666] text-[12px] font-mono block mb-1">&gt; email:</label>
-              <input
-                type="email"
-                value={email}
-                onChange={e => setEmail(e.target.value)}
-                className="w-full bg-transparent border-b border-[#3a3a3a] focus:border-[#c0a882] outline-none text-[#d4d4d4] font-mono text-[13px] py-2 px-0"
-                style={{ caretColor: '#c0a882' }}
-                required
-              />
+        <form onSubmit={handleSubmit} className="space-y-6">
+          {error && (
+            <div className="bg-[#ef4444]/10 border border-[#ef4444]/20 rounded-lg px-4 py-3">
+              <p className="text-[#ef4444] text-[12px] font-mono">{error}</p>
             </div>
+          )}
 
-            <div>
-              <label className="text-[#666] text-[12px] font-mono block mb-1">&gt; password:</label>
-              <input
-                type="password"
-                value={password}
-                onChange={e => setPassword(e.target.value)}
-                className="w-full bg-transparent border-b border-[#3a3a3a] focus:border-[#c0a882] outline-none text-[#d4d4d4] font-mono text-[13px] py-2 px-0"
-                style={{ caretColor: '#c0a882' }}
-                required
-              />
-            </div>
+          <div>
+            <label className="text-[#666] text-[11px] font-mono block mb-2 tracking-wider uppercase">Email</label>
+            <input
+              type="email"
+              value={email}
+              onChange={e => setEmail(e.target.value)}
+              className="w-full bg-[#1a1a1a] border border-[#333] focus:border-[#ffb000]/50 rounded-lg outline-none text-white font-mono text-[14px] py-3 px-4 transition-colors"
+              placeholder="you@example.com"
+              required
+            />
+          </div>
 
-            <button
-              type="submit"
-              disabled={loading}
-              className="w-full bg-[#c0a882]/10 border border-[#c0a882]/30 hover:bg-[#c0a882]/20 text-[#c0a882] font-mono text-[12px] py-3 rounded transition-colors"
-            >
-              {loading ? <LoadingDots /> : 'sign in ↵'}
-            </button>
+          <div>
+            <label className="text-[#666] text-[11px] font-mono block mb-2 tracking-wider uppercase">Password</label>
+            <input
+              type="password"
+              value={password}
+              onChange={e => setPassword(e.target.value)}
+              className="w-full bg-[#1a1a1a] border border-[#333] focus:border-[#ffb000]/50 rounded-lg outline-none text-white font-mono text-[14px] py-3 px-4 transition-colors"
+              placeholder="*********"
+              required
+            />
+          </div>
 
-            <div className="text-[#444] text-[11px] font-mono space-y-1 mt-4">
-              <p>no account? <Link href="/signup" className="text-[#c0a882] hover:underline">init --new →</Link></p>
-              <p>forgot? <span className="text-[#555]">reset --password →</span></p>
-            </div>
-          </form>
-        </TerminalWindow>
+          <Button type="submit" variant="primary" size="lg" loading={loading} className="w-full">
+            Sign In
+          </Button>
+
+          <div className="flex justify-between items-center pt-2">
+            <Link href="/signup" className="text-[#ffb000] text-[12px] hover:underline underline-offset-4">
+              Create account
+            </Link>
+            <span className="text-[#444] text-[11px]">forgot password?</span>
+          </div>
+        </form>
+
+        {/* Divider */}
+        <div className="flex items-center gap-4 my-8">
+          <div className="flex-1 h-px bg-[#222]" />
+          <span className="text-[#444] text-[10px] tracking-wider">OR</span>
+          <div className="flex-1 h-px bg-[#222]" />
+        </div>
+
+        <Button variant="secondary" size="md" href="/api/auth/spotify" className="w-full">
+          Continue with Spotify
+        </Button>
       </div>
     </div>
   )

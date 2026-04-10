@@ -1,18 +1,16 @@
 'use client'
 import { useState, useEffect, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
-import TerminalWindow from '@/components/ui/TerminalWindow'
+import Button from '@/components/ui/Button'
 import { createClient } from '@/lib/supabase/client'
 
 const INTERESTS = ['FILM', 'MUSIC', 'FOOD', 'BOOKS', 'ART', 'ARCHITECTURE', 'NIGHTLIFE', 'FASHION', 'SPORT', 'TECH', 'NATURE', 'OTHER']
 const NEIGHBORHOODS = ['LOWER EAST SIDE', 'CHINATOWN', 'BUSHWICK', 'RIDGEWOOD', 'WILLIAMSBURG', 'CROWN HEIGHTS', 'ASTORIA', 'HARLEM', 'WEST VILLAGE', 'BED-STUY', 'GREENPOINT', 'JACKSON HEIGHTS', 'FLUSHING', 'SOUTH BRONX', 'STATEN ISLAND', 'LONG ISLAND CITY']
-const PLATFORMS = ['SPOTIFY', 'LETTERBOXD', 'BELI']
 
 export default function OnboardingPage() {
   const [step, setStep] = useState(1)
   const [interests, setInterests] = useState<string[]>([])
   const [neighborhoods, setNeighborhoods] = useState<string[]>([])
-  const [connected, setConnected] = useState<Record<string, boolean>>({})
   const [initLines, setInitLines] = useState<string[]>([])
   const [progress, setProgress] = useState(0)
   const [showWelcome, setShowWelcome] = useState(false)
@@ -22,6 +20,13 @@ export default function OnboardingPage() {
   const toggle = (arr: string[], item: string, setter: (a: string[]) => void) => {
     setter(arr.includes(item) ? arr.filter(i => i !== item) : [...arr, item])
   }
+
+  const tileClass = (selected: boolean) =>
+    `border rounded-lg px-4 py-3 text-[12px] cursor-pointer transition-all duration-200 select-none font-mono ${
+      selected
+        ? 'text-[#ffb000] border-[#ffb000]/50 bg-[#ffb000]/8'
+        : 'text-[#666] border-[#333] bg-transparent hover:border-[#555] hover:text-[#999]'
+    }`
 
   const runInit = useCallback(async () => {
     const lines = [
@@ -35,7 +40,6 @@ export default function OnboardingPage() {
       await new Promise(r => setTimeout(r, 800))
       setInitLines(prev => [...prev, lines[i]])
     }
-    // Save to supabase
     const supabase = createClient()
     const { data: { user } } = await supabase.auth.getUser()
     if (user) {
@@ -51,7 +55,6 @@ export default function OnboardingPage() {
         onboarded: true
       }).eq('id', user.id)
     }
-    // Progress bar
     const start = Date.now()
     const animate = () => {
       const elapsed = Date.now() - start
@@ -67,99 +70,89 @@ export default function OnboardingPage() {
   }, [interests, neighborhoods])
 
   useEffect(() => {
-    if (step === 4) runInit()
+    if (step === 3) runInit()
   }, [step, runInit])
 
-  const tileClass = (selected: boolean) =>
-    `border rounded px-4 py-3 font-mono text-[12px] cursor-pointer transition-all duration-150 select-none ${
-      selected
-        ? 'text-[#c0a882] border-[#c0a882] bg-[#c0a882]/[0.08]'
-        : 'text-[#555] border-[#3a3a3a] bg-transparent hover:border-[#555]'
-    }`
-
   return (
-    <div className="min-h-screen bg-[#1a1a1a] flex items-center justify-center p-4">
+    <div className="min-h-screen bg-[#0a0a0a] flex items-center justify-center p-6">
       <div className="w-full max-w-lg">
-        <TerminalWindow title="atlas — onboarding">
-          <div className="relative">
-            <div className="absolute top-0 right-0 text-[#444] text-[11px] font-mono">[{step}/4]</div>
+        {/* Progress bar */}
+        <div className="flex gap-2 mb-8">
+          {[1, 2, 3].map(s => (
+            <div key={s} className="flex-1 h-0.5 rounded-full overflow-hidden bg-[#222]">
+              <div
+                className="h-full bg-[#ffb000] transition-all duration-500"
+                style={{ width: step >= s ? '100%' : '0%' }}
+              />
+            </div>
+          ))}
+        </div>
 
-            {step === 1 && (
-              <div>
-                <p className="text-[#c0a882] text-[14px] font-mono mb-4">what pulls you in?</p>
-                <div className="grid grid-cols-3 gap-2">
-                  {INTERESTS.map(i => (
-                    <button key={i} onClick={() => toggle(interests, i, setInterests)} className={tileClass(interests.includes(i))}>{i}</button>
-                  ))}
-                </div>
-                <button onClick={() => setStep(2)} disabled={interests.length === 0}
-                  className="mt-6 text-[#c0a882] text-[12px] font-mono hover:underline disabled:opacity-30 disabled:no-underline">
-                  [continue →]
-                </button>
+        {step === 1 && (
+          <div className="animate-fade-in-up">
+            <h1 className="text-[24px] font-bold text-white">What pulls you in?</h1>
+            <p className="text-[#555] text-[13px] mt-2 mb-8">Select your interests. This shapes your signal feed.</p>
+            <div className="grid grid-cols-3 gap-2">
+              {INTERESTS.map(i => (
+                <button key={i} onClick={() => toggle(interests, i, setInterests)} className={tileClass(interests.includes(i))}>{i}</button>
+              ))}
+            </div>
+            <Button
+              variant="primary"
+              size="lg"
+              onClick={() => setStep(2)}
+              disabled={interests.length === 0}
+              className="w-full mt-8"
+            >
+              Continue
+            </Button>
+          </div>
+        )}
+
+        {step === 2 && (
+          <div className="animate-fade-in-up">
+            <h1 className="text-[24px] font-bold text-white">Where do you move?</h1>
+            <p className="text-[#555] text-[13px] mt-2 mb-8">Pick your neighborhoods. Signals match to your geography.</p>
+            <div className="flex flex-wrap gap-2">
+              {NEIGHBORHOODS.map(n => (
+                <button key={n} onClick={() => toggle(neighborhoods, n, setNeighborhoods)}
+                  className={`${tileClass(neighborhoods.includes(n))} rounded-full text-[11px] px-4 py-2`}>{n}</button>
+              ))}
+            </div>
+            <Button
+              variant="primary"
+              size="lg"
+              onClick={() => setStep(3)}
+              disabled={neighborhoods.length === 0}
+              className="w-full mt-8"
+            >
+              Synthesize
+            </Button>
+          </div>
+        )}
+
+        {step === 3 && (
+          <div className="animate-fade-in-up">
+            <div className="space-y-2 font-mono text-[13px]">
+              {initLines.map((line, i) => (
+                <p key={i} className={line.includes('initialized') ? 'text-[#ffb000]' : 'text-[#666]'}>{line}</p>
+              ))}
+            </div>
+            {progress > 0 && (
+              <div className="h-0.5 bg-[#222] rounded-full overflow-hidden mt-6">
+                <div className="h-full bg-[#ffb000] transition-all duration-100 rounded-full" style={{ width: `${progress}%` }} />
               </div>
             )}
-
-            {step === 2 && (
-              <div>
-                <p className="text-[#c0a882] text-[14px] font-mono mb-4">connect your substrate</p>
-                <div className="space-y-0">
-                  {PLATFORMS.map(p => (
-                    <div key={p} className="flex justify-between items-center py-3 border-b border-[#2a2a2a]">
-                      <span className="text-[#d4d4d4] font-mono text-[13px]">{p}</span>
-                      {connected[p] ? (
-                        <span className="text-[#27ae60] text-[11px] font-mono">&bull; connected</span>
-                      ) : (
-                        <>
-                          <span className="text-[#444] text-[11px] font-mono mr-3">not connected</span>
-                          <button onClick={() => setConnected(prev => ({ ...prev, [p]: true }))}
-                            className="text-[#c0a882] text-[11px] font-mono hover:underline">[connect →]</button>
-                        </>
-                      )}
-                    </div>
-                  ))}
-                </div>
-                <div className="flex gap-4 mt-6">
-                  <button onClick={() => setStep(3)} className="text-[#c0a882] text-[12px] font-mono hover:underline">[continue →]</button>
-                  <button onClick={() => setStep(3)} className="text-[#333] text-[11px] font-mono hover:text-[#555]">skip for now</button>
-                </div>
-              </div>
+            {showWelcome && (
+              <h2 className="text-[28px] font-bold text-white mt-10 animate-fade-in-up">Welcome to ATLAS.</h2>
             )}
-
-            {step === 3 && (
-              <div>
-                <p className="text-[#c0a882] text-[14px] font-mono mb-4">where do you move?</p>
-                <div className="flex flex-wrap gap-2">
-                  {NEIGHBORHOODS.map(n => (
-                    <button key={n} onClick={() => toggle(neighborhoods, n, setNeighborhoods)}
-                      className={`${tileClass(neighborhoods.includes(n))} rounded-full text-[11px] px-3 py-1.5`}>{n}</button>
-                  ))}
-                </div>
-                <button onClick={() => setStep(4)} disabled={neighborhoods.length === 0}
-                  className="mt-6 text-[#c0a882] text-[12px] font-mono hover:underline disabled:opacity-30">
-                  [continue →]
-                </button>
-              </div>
-            )}
-
-            {step === 4 && (
-              <div className="font-mono text-[12px] space-y-2">
-                {initLines.map((line, i) => (
-                  <p key={i} className={line.includes('initialized') ? 'text-[#c0a882]' : 'text-[#666]'}>{line}</p>
-                ))}
-                {progress > 0 && (
-                  <div className="h-[1px] bg-[#2a2a2a] rounded overflow-hidden mt-4">
-                    <div className="h-full bg-[#c0a882]/30 transition-all duration-100" style={{ width: `${progress}%` }} />
-                  </div>
-                )}
-                {showWelcome && <p className="text-[#d4d4d4] text-[16px] mt-6">welcome to atlas.</p>}
-                {showEnter && (
-                  <button onClick={() => router.push('/app')}
-                    className="text-[#c0a882] text-[12px] font-mono hover:underline mt-4 block">[enter →]</button>
-                )}
-              </div>
+            {showEnter && (
+              <Button variant="primary" size="lg" onClick={() => router.push('/app')} className="w-full mt-6 animate-fade-in-up">
+                Enter
+              </Button>
             )}
           </div>
-        </TerminalWindow>
+        )}
       </div>
     </div>
   )

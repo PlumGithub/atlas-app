@@ -2,8 +2,7 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
-import TerminalWindow from '@/components/ui/TerminalWindow'
-import LoadingDots from '@/components/ui/LoadingDots'
+import Button from '@/components/ui/Button'
 import { createClient } from '@/lib/supabase/client'
 
 export default function SignupPage() {
@@ -16,7 +15,7 @@ export default function SignupPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (password !== confirm) { setError('passwords do not match'); return }
+    if (password !== confirm) { setError('Passwords do not match'); return }
     setLoading(true)
     setError('')
     const supabase = createClient()
@@ -38,34 +37,48 @@ export default function SignupPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#1a1a1a] flex items-center justify-center p-4">
-      <div className="w-full max-w-md">
-        <TerminalWindow title="atlas — init">
-          <form onSubmit={handleSubmit} className="space-y-6">
-            <p className="text-[#c0a882] text-[14px] mb-6">initialize new substrate.</p>
-            {error && <p className="text-red-400 text-[12px] font-mono">&gt; error: {error}</p>}
-            <div>
-              <label className="text-[#666] text-[12px] font-mono block mb-1">&gt; email:</label>
-              <input type="email" value={email} onChange={e => setEmail(e.target.value)}
-                className="w-full bg-transparent border-b border-[#3a3a3a] focus:border-[#c0a882] outline-none text-[#d4d4d4] font-mono text-[13px] py-2 px-0" style={{ caretColor: '#c0a882' }} required />
+    <div className="min-h-screen bg-[#0a0a0a] flex items-center justify-center p-6">
+      <div className="w-full max-w-sm">
+        <div className="text-center mb-10">
+          <Link href="/" className="text-[#ffb000] text-[24px] font-bold tracking-[0.25em]">ATLAS</Link>
+          <p className="text-[#555] text-[12px] mt-2 tracking-wider">create account</p>
+        </div>
+
+        <form onSubmit={handleSubmit} className="space-y-5">
+          {error && (
+            <div className="bg-[#ef4444]/10 border border-[#ef4444]/20 rounded-lg px-4 py-3">
+              <p className="text-[#ef4444] text-[12px] font-mono">{error}</p>
             </div>
-            <div>
-              <label className="text-[#666] text-[12px] font-mono block mb-1">&gt; password:</label>
-              <input type="password" value={password} onChange={e => setPassword(e.target.value)}
-                className="w-full bg-transparent border-b border-[#3a3a3a] focus:border-[#c0a882] outline-none text-[#d4d4d4] font-mono text-[13px] py-2 px-0" style={{ caretColor: '#c0a882' }} required />
-            </div>
-            <div>
-              <label className="text-[#666] text-[12px] font-mono block mb-1">&gt; confirm:</label>
-              <input type="password" value={confirm} onChange={e => setConfirm(e.target.value)}
-                className="w-full bg-transparent border-b border-[#3a3a3a] focus:border-[#c0a882] outline-none text-[#d4d4d4] font-mono text-[13px] py-2 px-0" style={{ caretColor: '#c0a882' }} required />
-            </div>
-            <button type="submit" disabled={loading}
-              className="w-full bg-[#c0a882]/10 border border-[#c0a882]/30 hover:bg-[#c0a882]/20 text-[#c0a882] font-mono text-[12px] py-3 rounded transition-colors">
-              {loading ? <LoadingDots /> : 'create account ↵'}
-            </button>
-            <p className="text-[#444] text-[11px] font-mono">have an account? <Link href="/login" className="text-[#c0a882] hover:underline">auth →</Link></p>
-          </form>
-        </TerminalWindow>
+          )}
+
+          <div>
+            <label className="text-[#666] text-[11px] font-mono block mb-2 tracking-wider uppercase">Email</label>
+            <input type="email" value={email} onChange={e => setEmail(e.target.value)}
+              className="w-full bg-[#1a1a1a] border border-[#333] focus:border-[#ffb000]/50 rounded-lg outline-none text-white font-mono text-[14px] py-3 px-4 transition-colors"
+              placeholder="you@example.com" required />
+          </div>
+          <div>
+            <label className="text-[#666] text-[11px] font-mono block mb-2 tracking-wider uppercase">Password</label>
+            <input type="password" value={password} onChange={e => setPassword(e.target.value)}
+              className="w-full bg-[#1a1a1a] border border-[#333] focus:border-[#ffb000]/50 rounded-lg outline-none text-white font-mono text-[14px] py-3 px-4 transition-colors"
+              placeholder="*********" required />
+          </div>
+          <div>
+            <label className="text-[#666] text-[11px] font-mono block mb-2 tracking-wider uppercase">Confirm</label>
+            <input type="password" value={confirm} onChange={e => setConfirm(e.target.value)}
+              className="w-full bg-[#1a1a1a] border border-[#333] focus:border-[#ffb000]/50 rounded-lg outline-none text-white font-mono text-[14px] py-3 px-4 transition-colors"
+              placeholder="*********" required />
+          </div>
+
+          <Button type="submit" variant="primary" size="lg" loading={loading} className="w-full">
+            Create Account
+          </Button>
+
+          <p className="text-center text-[12px]">
+            <span className="text-[#555]">Have an account?</span>{' '}
+            <Link href="/login" className="text-[#ffb000] hover:underline underline-offset-4">Sign in</Link>
+          </p>
+        </form>
       </div>
     </div>
   )
